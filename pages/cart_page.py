@@ -17,20 +17,23 @@ class CartPage(BasePage):
         self.checkout_button = page.get_by_test_id("checkout")
         self.continue_shopping_button = page.get_by_test_id("continue-shopping")
 
+    def get_item_names_locator(self):
+        return self.cart_items.get_by_test_id("inventory-item-name")
+
     def get_item_names(self) -> list[str]:
-        """Return the names of all items currently in the cart."""
-        self.cart_items.get_by_test_id("inventory-item-name").wait_for()
-        return [
-            el.inner_text()
-            for el in self.cart_items.get_by_test_id("inventory-item-name").all()
-        ]
+        """Return the names of all items currently in the cart (one-shot read)."""
+        self.get_item_names_locator().wait_for()
+        return [el.inner_text() for el in self.get_item_names_locator().all()]
+
+    def get_item_locator(self, item_name: str):
+        return self.cart_items.filter(has_text=item_name)
 
     def has_item(self, item_name: str) -> bool:
-        """Return True if a specific item is present in the cart."""
+        """Return True if a specific item is present in the cart (one-shot check)."""
         return item_name in self.get_item_names()
 
     def has_items(self, item_names: list[str]) -> bool:
-        """Return True if every item in `item_names` is present in the cart."""
+        """Return True if every item in `item_names` is present in the cart (one-shot)."""
         present = set(self.get_item_names())
         return set(item_names).issubset(present)
 
