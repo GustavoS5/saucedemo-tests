@@ -10,6 +10,7 @@ from __future__ import annotations
 import pytest
 from playwright.sync_api import Page
 
+from pages.cart_page import CartPage
 from pages.login_page import LoginPage
 from pages.inventory_page import InventoryPage
 
@@ -24,7 +25,7 @@ def login_page(page: Page) -> LoginPage:
 
 @pytest.fixture
 def logged_in_page(
-    page: Page, saucedemo_credentials: dict[str, str]
+        page: Page, saucedemo_credentials: dict[str, str]
 ) -> Page:
     """A Playwright `page` already authenticated and on the inventory screen."""
     login = LoginPage(page)
@@ -39,3 +40,11 @@ def logged_in_page(
 def inventory_page(logged_in_page: Page) -> InventoryPage:
     """An InventoryPage object bound to an authenticated session."""
     return InventoryPage(logged_in_page)
+
+
+@pytest.fixture
+def cart_page_with_item(inventory_page: InventoryPage) -> CartPage:
+    """A CartPage with one known item already added."""
+    inventory_page.add_item_to_cart("Sauce Labs Backpack")
+    inventory_page.go_to_cart()
+    return CartPage(inventory_page.page)
