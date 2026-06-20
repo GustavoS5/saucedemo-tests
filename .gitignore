@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# Environment variables (reserved for future projects with real secrets)
+.env
+
+# Playwright
+test-results/
+playwright-report/
+
+# Allure
+allure-results/
+allure-report/
+
+# Internal design docs (working artifacts, not portfolio content)
+docs/
+
+# IDE
+.idea/
+.vscode/
