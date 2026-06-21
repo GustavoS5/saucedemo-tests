@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import pytest
 from playwright.sync_api import expect
-from tests.conftest import inventory_page
 
 
 @pytest.mark.parametrize("item_name", ["Sauce Labs Backpack", "Sauce Labs Bike Light"])
