@@ -21,7 +21,7 @@ class CartPage(BasePage):
         return self.cart_items.get_by_test_id("inventory-item-name")
 
     def get_item_names(self) -> list[str]:
-        """Return the names of all items currently in the cart (one-shot read)."""
+        """Return the names of all items currently in the cart."""
         self.get_item_names_locator().wait_for()
         return [el.inner_text() for el in self.get_item_names_locator().all()]
 
@@ -29,11 +29,11 @@ class CartPage(BasePage):
         return self.cart_items.filter(has_text=item_name)
 
     def has_item(self, item_name: str) -> bool:
-        """Return True if a specific item is present in the cart (one-shot check)."""
+        """Return True if a specific item is present in the cart."""
         return item_name in self.get_item_names()
 
     def has_items(self, item_names: list[str]) -> bool:
-        """Return True if every item in `item_names` is present in the cart (one-shot)."""
+        """Return True if every item in `item_names` is present in the cart."""
         present = set(self.get_item_names())
         return set(item_names).issubset(present)
 
@@ -42,7 +42,6 @@ class CartPage(BasePage):
         self.cart_items.filter(has_text=item_name).get_by_role(
             "button", name="Remove"
         ).click()
-
 
     def get_item_price_locator(self, item_name: str):
         """Return the price locator for a specific cart item."""
