@@ -12,29 +12,37 @@ class InventoryPage(BasePage):
 
     def __init__(self, page) -> None:
         super().__init__(page)
-        self.title = page.locator('[data-test="title"]')
-        self.inventory_items = page.locator('[data-test="inventory-item"]')
-        self.shopping_cart_badge = page.locator('[data-test="shopping-cart-badge"]')
-        self.shopping_cart_link = page.locator('[data-test="shopping-cart-link"]')
-        self.sort_dropdown = page.locator('[data-test="product-sort-container"]')
+        self.title = page.get_by_test_id("title")
+        self.inventory_items = page.get_by_test_id("inventory-item")
+        self.shopping_cart_badge = page.get_by_test_id("shopping-cart-badge")
+        self.shopping_cart_link = page.get_by_test_id("shopping-cart-link")
+        self.sort_dropdown = page.get_by_test_id("product-sort-container")
+
+    # --- Locators ---
+    def _item_locator(self, item_name: str):
+        """Return the inventory-item block matching `item_name` by its title."""
+        return self.inventory_items.filter(
+            has=self.page.get_by_test_id("inventory-item-name").filter(
+                has_text=item_name
+            )
+        )
 
     # --- Cart interactions ---
     def add_item_to_cart(self, item_name: str):
         """Click the 'Add to cart' button for a product by its name."""
-        self.inventory_items.filter(
-            has=self.page.locator(
-                '[data-test="inventory-item-name"]', has_text=item_name
-            )
-        ).get_by_role("button", name="Add to cart").click()
+        self._item_locator(item_name).get_by_role(
+            "button", name="Add to cart"
+        ).click()
 
     def remove_item_from_cart(self, item_name: str):
         """Click the 'Remove' button for a product by its name."""
-        self.inventory_items.filter(
-            has=self.page.locator(
-                '[data-test="inventory-item-name"]', has_text=item_name
-            )
-        ).get_by_role("button", name="Remove").click()
+        self._item_locator(item_name).get_by_role("button", name="Remove").click()
 
     def go_to_cart(self):
         """Open the shopping cart."""
         self.shopping_cart_link.click()
+
+    def get_item_price(self, item_name: str) -> str:
+        price = self._item_locator(item_name).get_by_test_id("inventory-item-price")
+        price.wait_for()
+        return price.inner_text()
