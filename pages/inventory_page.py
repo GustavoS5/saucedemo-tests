@@ -17,8 +17,9 @@ class InventoryPage(BasePage):
         self.shopping_cart_badge = page.get_by_test_id("shopping-cart-badge")
         self.shopping_cart_link = page.get_by_test_id("shopping-cart-link")
         self.sort_dropdown = page.get_by_test_id("product-sort-container")
+        self.menu_button = page.get_by_role("button", name="Open Menu")
+        self.logout_link = page.get_by_role("link", name="Logout")
 
-    # --- Locators ---
     def _item_locator(self, item_name: str):
         """Return the inventory-item block matching `item_name` by its title."""
         return self.inventory_items.filter(
@@ -27,7 +28,6 @@ class InventoryPage(BasePage):
             )
         )
 
-    # --- Cart interactions ---
     def add_item_to_cart(self, item_name: str):
         """Click the 'Add to cart' button for a product by its name."""
         self._item_locator(item_name).get_by_role(
@@ -46,3 +46,8 @@ class InventoryPage(BasePage):
         price = self._item_locator(item_name).get_by_test_id("inventory-item-price")
         price.wait_for()
         return price.inner_text()
+
+    def logout(self):
+        """Open the sidebar menu and click Logout."""
+        self.menu_button.click()
+        self.logout_link.click()
