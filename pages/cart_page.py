@@ -43,6 +43,20 @@ class CartPage(BasePage):
             "button", name="Remove"
         ).click()
 
+
+    def get_item_price_locator(self, item_name: str):
+        """Return the price locator for a specific cart item."""
+        return self.cart_items.filter(
+            has=self.page.get_by_test_id("inventory-item-name").filter(
+                has_text=item_name
+            )
+        ).get_by_test_id("inventory-item-price")
+
+    def get_item_price(self, item_name: str) -> str:
+        price = self.get_item_price_locator(item_name)
+        price.wait_for()
+        return price.inner_text()
+
     def go_to_checkout(self):
         """Proceed to the first checkout step."""
         self.checkout_button.click()
