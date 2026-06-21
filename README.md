@@ -4,7 +4,7 @@ End-to-end test suite for [saucedemo.com](https://www.saucedemo.com) — the
 demo site by Sauce Labs — built with **Python**, **Playwright**, and
 **pytest**, following the Page Object Model.
 
-[![Playwright Tests](https://github.com/GustavoS5/saucedemo-tests/actions/workflows/playwright.yml/badge.svg)](https://github.com/<USER>/<REPO>/actions/workflows/playwright.yml)
+[![Playwright Tests](https://github.com/GustavoS5/saucedemo-tests/actions/workflows/playwright.yml/badge.svg)](https://github.com/GustavoS5/saucedemo-tests/actions/workflows/playwright.yml)
 
 
 ## Tech stack
