@@ -48,3 +48,12 @@ def cart_page_with_item(inventory_page: InventoryPage) -> CartPage:
     inventory_page.add_item_to_cart("Sauce Labs Backpack")
     inventory_page.go_to_cart()
     return CartPage(inventory_page.page)
+
+@pytest.fixture
+def cart_page_with_multiple_items(inventory_page: InventoryPage) -> CartPage:
+    """A CartPage with multiple known items already added."""
+    inventory_page.add_item_to_cart("Sauce Labs Backpack")
+    inventory_page.add_item_to_cart("Sauce Labs Bolt T-Shirt")
+    inventory_page.add_item_to_cart("Sauce Labs Onesie")
+    inventory_page.go_to_cart()
+    return CartPage(inventory_page.page)
