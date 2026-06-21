@@ -1,9 +1,4 @@
-"""Test-level fixtures for the saucedemo suite.
-
-Fixtures defined here are only available to the `tests` package and can build
-on the project-level fixtures (page, saucedemo_credentials) from the root
-conftest.py.
-"""
+"""Test-level fixtures for the saucedemo suite."""
 
 from __future__ import annotations
 
@@ -48,6 +43,7 @@ def cart_page_with_item(inventory_page: InventoryPage) -> CartPage:
     inventory_page.add_item_to_cart("Sauce Labs Backpack")
     inventory_page.go_to_cart()
     return CartPage(inventory_page.page)
+
 
 @pytest.fixture
 def cart_page_with_multiple_items(inventory_page: InventoryPage) -> CartPage:
