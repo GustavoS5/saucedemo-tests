@@ -13,7 +13,6 @@ from pages.base_page import BasePage
 class CheckoutPage(BasePage):
     """Represents the checkout flow (steps one and two)."""
 
-    # Defaults to step one; navigate() can be called with a specific path.
     url = "/checkout-step-one.html"
 
     def __init__(self, page) -> None:
@@ -34,7 +33,7 @@ class CheckoutPage(BasePage):
         self.summary_items = page.get_by_test_id("cart-item")
 
     def fill_customer_info(
-        self, first_name: str, last_name: str, postal_code: str
+            self, first_name: str, last_name: str, postal_code: str
     ):
         """Fill out the checkout customer information form."""
         self.first_name_input.fill(first_name)
