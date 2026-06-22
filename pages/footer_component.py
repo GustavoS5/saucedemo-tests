@@ -1,8 +1,4 @@
-"""Reusable footer component for the saucedemo site.
-
-The footer appears on several pages (inventory, cart, etc.), so it is modelled
-as a component rather than a full page object.
-"""
+"""Footer component shared across pages."""
 
 from __future__ import annotations
 

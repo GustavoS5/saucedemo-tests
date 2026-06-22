@@ -1,4 +1,4 @@
-"""Inventory (product list) page object for the saucedemo site."""
+"""Inventory page object for the saucedemo site."""
 
 from __future__ import annotations
 

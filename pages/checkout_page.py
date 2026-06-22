@@ -1,9 +1,4 @@
-"""Checkout page object for the saucedemo site.
-
-The saucedemo checkout spans two screens: step one collects the customer's
-information (/checkout-step-one.html) and step two reviews the order summary
-(/checkout-step-two.html). This page object groups both steps together.
-"""
+"""Checkout page object for the saucedemo site."""
 
 from __future__ import annotations
 

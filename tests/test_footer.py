@@ -1,8 +1,4 @@
-"""Footer tests for the saucedemo site.
-
-The footer is a shared component, so these tests run from a logged-in
-inventory page but focus only on footer rendering and links.
-"""
+"""Footer tests for the saucedemo site."""
 
 from __future__ import annotations
 

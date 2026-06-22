@@ -1,4 +1,4 @@
-"""Inventory (product list) tests for the saucedemo site."""
+"""Inventory tests for the saucedemo site."""
 
 from __future__ import annotations
 

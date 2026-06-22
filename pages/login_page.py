@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from playwright.sync_api import Locator, Page
+from playwright.sync_api import Page
 
 from pages.base_page import BasePage
 
@@ -11,15 +11,6 @@ class LoginPage(BasePage):
     """Represents https://www.saucedemo.com/ — the sign-in screen."""
 
     url = "/"
-
-    #: Username input field.
-    username_input: Locator
-    #: Password input field.
-    password_input: Locator
-    #: Submit button for the login form.
-    login_button: Locator
-    #: Inline error message banner shown on authentication failure.
-    error_message: Locator
 
     def __init__(self, page: Page) -> None:
         super().__init__(page)
