@@ -11,8 +11,6 @@ from pages.checkout_page import CheckoutPage
 from pages.inventory_page import InventoryPage
 from pages.login_page import LoginPage
 
-# A fixed seed makes generated test data deterministic across runs and CI,
-# which keeps failures reproducible without hard-coding static values.
 FAKER_SEED = 42
 
 
@@ -33,11 +31,22 @@ def login_page(page: Page) -> LoginPage:
 
 
 @pytest.fixture
-def logged_in_page(page: Page, saucedemo_credentials: dict[str, str]) -> Page:
+def logged_in_page(page: Page, saucedemo_password: str) -> Page:
     """A Playwright `page` already authenticated and on the inventory screen."""
     login = LoginPage(page)
     login.load()
-    login.login(saucedemo_credentials["username"], saucedemo_credentials["password"])
+    login.login("standard_user", saucedemo_password)
+
+    inventory = InventoryPage(page)
+    try:
+        inventory.title.wait_for(state="visible", timeout=5000)
+    except Exception as e:
+        if login.error_message.is_visible(timeout=500):
+            raise AssertionError(f"Login failed: {login.get_error()}") from e
+        raise AssertionError(
+            f"Login failed: Inventory page not reached. error: {e}"
+        ) from e
+
     return page
 
 

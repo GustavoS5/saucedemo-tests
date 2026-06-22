@@ -6,7 +6,6 @@ demo site by Sauce Labs — built with **Python**, **Playwright**, and
 
 [![Playwright Tests](https://github.com/GustavoS5/saucedemo-tests/actions/workflows/playwright.yml/badge.svg)](https://github.com/GustavoS5/saucedemo-tests/actions/workflows/playwright.yml)
 
-
 ## Tech stack
 
 | Tool | Purpose |
@@ -23,7 +22,7 @@ demo site by Sauce Labs — built with **Python**, **Playwright**, and
 ```
 .
 ├── .github/workflows/playwright.yml   # CI: push, PR, nightly
-├── conftest.py                        # Shared fixtures (credentials, base url, test-id mapping)
+├── conftest.py                        # Shared fixtures (password, base url, test-id mapping)
 ├── pages/                             # Page Object Model
 │   ├── __init__.py
 │   ├── base_page.py                   # Minimal base: page + url + navigate()
@@ -51,27 +50,14 @@ demo site by Sauce Labs — built with **Python**, **Playwright**, and
 
 ## Test credentials
 
-The suite reads saucedemo credentials from environment variables so credentials
-are not hard-coded in the test code:
+The suite reads the shared saucedemo password from `SAUCEDEMO_PASSWORD`.
+The default login uses `standard_user`; other users (`problem_user`,
+`error_user`, etc.) are parametrized directly in their test files.
+The `.env` file is gitignored — copy `.env.example` as your local
+template. For CI, set `SAUCEDEMO_PASSWORD` as a GitHub Actions secret.
 
-| Variable | Example value |
-| --- | --- |
-| `SAUCEDEMO_USERNAME` | `standard_user` |
-| `SAUCEDEMO_PASSWORD` | `secret_sauce` |
-
-The password is included in `.env.example` because Saucedemo is a public demo
-site and these credentials are intentionally published for test automation
-practice. For a real application, never commit usable credentials; keep only
-placeholders in committed templates and inject real values via a secret manager
-or CI secrets.
-
-For local runs, `python-dotenv` loads these values from a local `.env` file when
-one is present. The `.env` file is ignored by Git; commit only `.env.example` as
-the safe template.
-
-For CI, configure these values as GitHub Actions secrets. The edge-user tests
-still swap usernames such as `problem_user` and `error_user` while reusing the
-injected password.
+The password is committed in `.env.example` because saucedemo is a public demo
+site with intentionally published credentials.
 
 ## Local setup
 
@@ -84,16 +70,9 @@ uv sync
 # 2. Install the Playwright browser binaries
 uv run playwright install chromium
 
-# 3. Create a local dotenv file from the committed template
+# 3. Create a local dotenv file from the template and set your password
 copy .env.example .env
-
-# 4. Review .env; the template already contains Saucedemo's public demo credentials
-#    SAUCEDEMO_USERNAME=standard_user
-#    SAUCEDEMO_PASSWORD=secret_sauce
 ```
-
-Alternatively, you can skip `.env` and export the same variables into the current
-shell session before running tests.
 
 ## Running tests
 
@@ -124,9 +103,6 @@ uv run pytest tests/test_login.py
 | `smoke`     | Fast core happy-path tests |
 | `e2e`       | End-to-end user flow tests |
 | `negative`  | Error and validation paths |
-
-Apply with a decorator (`@pytest.mark.smoke`) or set `pytestmark` at the top
-of a module.
 
 ## Debugging failed tests
 

@@ -7,19 +7,11 @@ import os
 import pytest
 from dotenv import load_dotenv
 
-# Load local-only environment variables from .env when present. CI injects these
-# values directly via GitHub Actions secrets.
+# Loads SAUCEDEMO_PASSWORD from a local .env file when present.
 load_dotenv()
 
-# Saucedemo credentials come from environment variables to avoid hard-coding
-# them in test source (see .env.example for the template).
-CREDENTIAL_ENV_VARS = {
-    "username": "SAUCEDEMO_USERNAME",
-    "password": "SAUCEDEMO_PASSWORD",
-}
 
-# All saucedemo accounts that successfully authenticate. `locked_out_user`
-# is intentionally excluded — it is an error-path fixture, not a happy path.
+# `locked_out_user` is intentionally excluded — error-path fixture.
 VALID_USERS = (
     "standard_user",
     "problem_user",
@@ -40,21 +32,14 @@ def base_url() -> str:
 
 
 @pytest.fixture
-def saucedemo_credentials() -> dict[str, str]:
-    """Saucedemo login credentials as a {username, password} dict."""
-    credentials = {
-        field: os.environ.get(env_var) for field, env_var in CREDENTIAL_ENV_VARS.items()
-    }
-    missing = [
-        env_var
-        for field, env_var in CREDENTIAL_ENV_VARS.items()
-        if not credentials[field]
-    ]
-
-    if missing:
-        raise RuntimeError(f"Set {', '.join(missing)} before running tests.")
-
-    return {field: value for field, value in credentials.items() if value is not None}
+def saucedemo_password() -> str:
+    """The shared saucedemo password, read from ``SAUCEDEMO_PASSWORD``."""
+    password = os.environ.get("SAUCEDEMO_PASSWORD", "").strip().strip("'\"")
+    if not password:
+        raise RuntimeError(
+            "Set SAUCEDEMO_PASSWORD environment variable before running tests."
+        )
+    return password
 
 
 @pytest.fixture(params=VALID_USERS, ids=VALID_USERS)
