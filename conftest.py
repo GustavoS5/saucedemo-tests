@@ -2,11 +2,21 @@
 
 from __future__ import annotations
 
-import pytest
+import os
 
-# Public saucedemo test credentials.
-USERNAME = "standard_user"
-PASSWORD = "secret_sauce"
+import pytest
+from dotenv import load_dotenv
+
+# Load local-only environment variables from .env when present. CI injects these
+# values directly via GitHub Actions secrets.
+load_dotenv()
+
+# Saucedemo credentials come from environment variables to avoid hard-coding
+# them in test source (see .env.example for the template).
+CREDENTIAL_ENV_VARS = {
+    "username": "SAUCEDEMO_USERNAME",
+    "password": "SAUCEDEMO_PASSWORD",
+}
 
 # All saucedemo accounts that successfully authenticate. `locked_out_user`
 # is intentionally excluded — it is an error-path fixture, not a happy path.
@@ -32,7 +42,19 @@ def base_url() -> str:
 @pytest.fixture
 def saucedemo_credentials() -> dict[str, str]:
     """Saucedemo login credentials as a {username, password} dict."""
-    return {"username": USERNAME, "password": PASSWORD}
+    credentials = {
+        field: os.environ.get(env_var) for field, env_var in CREDENTIAL_ENV_VARS.items()
+    }
+    missing = [
+        env_var
+        for field, env_var in CREDENTIAL_ENV_VARS.items()
+        if not credentials[field]
+    ]
+
+    if missing:
+        raise RuntimeError(f"Set {', '.join(missing)} before running tests.")
+
+    return {field: value for field, value in credentials.items() if value is not None}
 
 
 @pytest.fixture(params=VALID_USERS, ids=VALID_USERS)

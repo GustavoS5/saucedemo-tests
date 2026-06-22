@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from playwright.sync_api import Locator, Page
+
 from pages.base_page import BasePage
 
 
@@ -10,18 +12,27 @@ class LoginPage(BasePage):
 
     url = "/"
 
-    def __init__(self, page) -> None:
+    #: Username input field.
+    username_input: Locator
+    #: Password input field.
+    password_input: Locator
+    #: Submit button for the login form.
+    login_button: Locator
+    #: Inline error message banner shown on authentication failure.
+    error_message: Locator
+
+    def __init__(self, page: Page) -> None:
         super().__init__(page)
         self.username_input = page.get_by_placeholder("Username")
         self.password_input = page.get_by_placeholder("Password")
         self.login_button = page.get_by_role("button", name="Login")
         self.error_message = page.get_by_test_id("error")
 
-    def load(self):
+    def load(self) -> None:
         """Navigate to the login page."""
         self.navigate()
 
-    def login(self, username: str, password: str):
+    def login(self, username: str, password: str) -> None:
         """Fill credentials and submit the login form."""
         self.username_input.fill(username)
         self.password_input.fill(password)
