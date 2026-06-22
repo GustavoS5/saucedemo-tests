@@ -9,6 +9,12 @@ dependencies = [
     "pytest-xdist>=3.8.0",
     "allure-pytest>=2.16.0",
     "faker>=40.23.0",
+    "python-dotenv>=1.2.2",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.6.0",
 ]
 
 [tool.pytest.ini_options]
@@ -19,6 +25,31 @@ markers = [
     "e2e: end-to-end user flow tests",
     "negative: error and validation paths",
 ]
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.ruff.lint]
+# Clean baseline: pycodestyle (E/W), pyflakes (F), import sorting (I),
+# unused arguments (ARG), comprehensions (C4), and Bandit security checks (S).
+select = ["E", "W", "F", "I", "ARG", "C4", "S"]
+ignore = [
+    # Allow unused function arguments for fixture signature compatibility
+    # (pytest fixtures must match the parameter list even when unused).
+    "ARG001",
+    # Allow unused method arguments in page-object methods that mirror
+    # a stable public API (e.g. subclasses overriding base signatures).
+    "ARG002",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests legitimately use `assert` for in-memory Python value comparisons.
+"tests/**" = ["S101"]
+
+[tool.ruff.format]
+# Match Black defaults for line length/quote style.
+quote-style = "double"
 
 [tool.allure]
 # allure results are written here; `allure serve allure-results` to view
