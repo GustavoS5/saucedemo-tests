@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   lint:
-    name: Lint (Ruff)
+    name: Lint (Ruff & Mypy)
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
@@ -47,9 +47,6 @@ jobs:
 
       - name: Run mypy
         run: uv run mypy .
-
-      - name: Run tests
-        run: uv run pytest
 
   test:
     name: Tests (${{ matrix.browser }})
