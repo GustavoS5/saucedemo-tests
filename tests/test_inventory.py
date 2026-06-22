@@ -6,6 +6,7 @@ import pytest
 from playwright.sync_api import expect
 
 
+@pytest.mark.smoke
 @pytest.mark.parametrize("item_name", ["Sauce Labs Backpack", "Sauce Labs Bike Light"])
 def test_add_item_to_cart(inventory_page, item_name):
     inventory_page.add_item_to_cart(item_name)
