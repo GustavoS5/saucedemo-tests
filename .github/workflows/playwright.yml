@@ -8,6 +8,7 @@ on:
   schedule:
     # Nightly run at 03:00 UTC (00:00 America/Argentina/Buenos_Aires).
     - cron: '0 3 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: read
