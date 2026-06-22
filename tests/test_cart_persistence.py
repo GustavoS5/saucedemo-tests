@@ -1,4 +1,4 @@
-"""Cart persistence tests — verifying cart state across session cycles."""
+"""Cart persistence tests across logout and re-login cycles."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from pages.login_page import LoginPage
 
 @pytest.mark.e2e
 def test_cart_persists_after_logout_and_relogin(
-    logged_in_page, saucedemo_credentials, base_url: str
+    logged_in_page, saucedemo_password: str, base_url: str
 ):
     """Items added to the cart remain after a logout and log back in."""
     inventory = InventoryPage(logged_in_page)
@@ -24,8 +24,8 @@ def test_cart_persists_after_logout_and_relogin(
 
     login = LoginPage(logged_in_page)
     login.login(
-        saucedemo_credentials["username"],
-        saucedemo_credentials["password"],
+        "standard_user",
+        saucedemo_password,
     )
     expect(logged_in_page).to_have_url(f"{base_url}/inventory.html")
 
@@ -40,7 +40,7 @@ def test_cart_persists_after_logout_and_relogin(
 
 @pytest.mark.e2e
 def test_cart_persists_multiple_items_after_relogin(
-    logged_in_page, saucedemo_credentials, base_url: str
+    logged_in_page, saucedemo_password: str, base_url: str
 ):
     """Multiple cart items survive a logout/re-login cycle."""
     inventory = InventoryPage(logged_in_page)
@@ -54,8 +54,8 @@ def test_cart_persists_multiple_items_after_relogin(
 
     login = LoginPage(logged_in_page)
     login.login(
-        saucedemo_credentials["username"],
-        saucedemo_credentials["password"],
+        "standard_user",
+        saucedemo_password,
     )
 
     inventory_after = InventoryPage(logged_in_page)
@@ -73,7 +73,7 @@ def test_cart_persists_multiple_items_after_relogin(
 
 
 def test_cart_badge_updates_after_navigation_cycle(
-    logged_in_page, saucedemo_credentials, base_url: str
+    logged_in_page, saucedemo_password: str, base_url: str
 ):
     """The cart badge reflects the persisted count after re-login."""
     inventory = InventoryPage(logged_in_page)
@@ -84,8 +84,8 @@ def test_cart_badge_updates_after_navigation_cycle(
 
     login = LoginPage(logged_in_page)
     login.login(
-        saucedemo_credentials["username"],
-        saucedemo_credentials["password"],
+        "standard_user",
+        saucedemo_password,
     )
 
     inventory_after = InventoryPage(logged_in_page)

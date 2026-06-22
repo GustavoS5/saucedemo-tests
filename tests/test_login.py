@@ -16,11 +16,11 @@ EXPECTED_INVENTORY_ITEM_COUNT = 6
 def test_login_all_valid_users(
     login_page: LoginPage,
     valid_user: str,
-    saucedemo_credentials: dict[str, str],
+    saucedemo_password: str,
     base_url: str,
 ):
     """Every saucedemo account in VALID_USERS should reach the inventory page."""
-    login_page.login(valid_user, saucedemo_credentials["password"])
+    login_page.login(valid_user, saucedemo_password)
     inventory = InventoryPage(login_page.page)
     expect(inventory.title).to_have_text("Products")
     expect(login_page.page).to_have_url(f"{base_url}/inventory.html")

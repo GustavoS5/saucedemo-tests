@@ -1,12 +1,4 @@
-"""Edge-case tests for saucedemo's special problem/error users.
-
-These users exhibit intentionally broken behaviour that should be asserted
-so regressions in the demo site are caught:
-
-- ``problem_user``: inventory item images are replaced by a 404 placeholder,
-  checkout form fields are wired incorrectly, and sorting is broken.
-- ``error_user``  : checkout form interactions throw JavaScript errors.
-"""
+"""Edge-case tests for problem_user and error_user broken behaviour."""
 
 from __future__ import annotations
 
@@ -30,11 +22,11 @@ def login_as_user(page, username: str, password: str) -> InventoryPage:
 
 
 @pytest.fixture
-def checkout_for_user(page, saucedemo_credentials):
+def checkout_for_user(page, saucedemo_password):
     """Factory fixture that reaches checkout step one for a given username."""
 
     def _checkout_for_user(username: str, item_name: str = "Sauce Labs Backpack"):
-        inventory = login_as_user(page, username, saucedemo_credentials["password"])
+        inventory = login_as_user(page, username, saucedemo_password)
         inventory.add_item_to_cart(item_name)
         inventory.go_to_cart()
 
@@ -46,9 +38,9 @@ def checkout_for_user(page, saucedemo_credentials):
 
 
 @pytest.fixture
-def problem_user_inventory(page, saucedemo_credentials):
+def problem_user_inventory(page, saucedemo_password):
     """A logged-in ``problem_user`` session on the inventory page."""
-    return login_as_user(page, "problem_user", saucedemo_credentials["password"])
+    return login_as_user(page, "problem_user", saucedemo_password)
 
 
 @pytest.fixture
@@ -162,16 +154,16 @@ def test_problem_user_checkout_cannot_complete_normally(
 # --- error_user: JavaScript errors + broken checkout field ----------------
 
 
-def test_error_user_can_log_in(page, saucedemo_credentials, base_url: str):
+def test_error_user_can_log_in(page, saucedemo_password, base_url: str):
     """error_user authenticates and lands on inventory."""
-    inventory = login_as_user(page, "error_user", saucedemo_credentials["password"])
+    inventory = login_as_user(page, "error_user", saucedemo_password)
     expect(inventory.title).to_have_text("Products")
     expect(page).to_have_url(f"{base_url}/inventory.html")
 
 
-def test_error_user_can_add_items_to_cart(page, saucedemo_credentials, base_url: str):
+def test_error_user_can_add_items_to_cart(page, saucedemo_password, base_url: str):
     """error_user can add items to the cart on the inventory page."""
-    inventory = login_as_user(page, "error_user", saucedemo_credentials["password"])
+    inventory = login_as_user(page, "error_user", saucedemo_password)
     inventory.add_item_to_cart("Sauce Labs Backpack")
     inventory.add_item_to_cart("Sauce Labs Bike Light")
     expect(inventory.shopping_cart_badge).to_have_text("2")
@@ -184,11 +176,7 @@ def test_error_user_checkout_reaches_step_one(error_user_checkout, base_url: str
 
 
 def test_error_user_lastname_field_broken(error_user_checkout, page):
-    """The lastName field does not capture input for error_user.
-
-    Filling lastName triggers a JS TypeError in the onChange handler
-    (Cannot read properties of undefined), so the value never registers.
-    """
+    """Filling lastName triggers a JS TypeError and the value never registers."""
     checkout = error_user_checkout
 
     checkout.first_name_input.fill("Test")
@@ -201,12 +189,7 @@ def test_error_user_lastname_field_broken(error_user_checkout, page):
 
 
 def test_error_user_lastname_onchange_throws_js_error(error_user_checkout, page):
-    """Typing into the lastName field triggers a JavaScript TypeError.
-
-    error_user's checkout form has a broken onChange handler on lastName.
-    This is caught as an uncaught page error (pageerror), confirming the
-    field's event handler is misconfigured.
-    """
+    """Typing into lastName triggers a JavaScript TypeError (pageerror)."""
 
     with page.expect_event("pageerror", timeout=5000) as event_info:
         page.get_by_test_id("lastName").type("Trigger")
@@ -218,13 +201,7 @@ def test_error_user_lastname_onchange_throws_js_error(error_user_checkout, page)
 
 
 def test_error_user_cannot_complete_checkout(error_user_checkout, page, base_url: str):
-    """error_user cannot finish an order — the Finish button fails.
-
-    Step one proceeds to step two (validation doesn't block the empty
-    lastName), but clicking Finish on the overview does not advance to
-    the confirmation page. The order cannot be completed. This documents
-    the actual observed behaviour in the current saucedemo build.
-    """
+    """error_user cannot finish an order — the Finish button fails."""
     checkout = error_user_checkout
 
     checkout.first_name_input.fill("Test")
@@ -239,14 +216,9 @@ def test_error_user_cannot_complete_checkout(error_user_checkout, page, base_url
     expect(checkout.complete_header).not_to_be_visible()
 
 
-def test_error_user_remove_item_from_cart(page, saucedemo_credentials, base_url: str):
-    """error_user can remove items from the cart (no remove bug in this build).
-
-    Earlier saucedemo versions had a remove-button bug for error_user, but the
-    current version handles removal correctly. This test documents that and
-    will fail (alerting us) if the bug reappears in a future build.
-    """
-    inventory = login_as_user(page, "error_user", saucedemo_credentials["password"])
+def test_error_user_remove_item_from_cart(page, saucedemo_password, base_url: str):
+    """error_user can remove items from the cart."""
+    inventory = login_as_user(page, "error_user", saucedemo_password)
     inventory.add_item_to_cart("Sauce Labs Backpack")
     inventory.add_item_to_cart("Sauce Labs Bike Light")
     inventory.go_to_cart()
