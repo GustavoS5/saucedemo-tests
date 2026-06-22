@@ -8,6 +8,7 @@ dependencies = [
     "pytest-playwright>=0.8.0",
     "pytest-xdist>=3.8.0",
     "allure-pytest>=2.16.0",
+    "faker>=40.23.0",
 ]
 
 [tool.pytest.ini_options]
