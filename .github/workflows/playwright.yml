@@ -2,9 +2,9 @@ name: Playwright Tests
 
 on:
   push:
-    branches: [main, master]
+    branches: [ main, master ]
   pull_request:
-    branches: [main, master]
+    branches: [ main, master ]
   schedule:
     # Nightly run at 03:00 UTC (00:00 America/Argentina/Buenos_Aires).
     - cron: '0 3 * * *'
@@ -45,6 +45,12 @@ jobs:
       - name: Run Ruff lint
         run: uv run ruff check .
 
+      - name: Run mypy
+        run: uv run mypy .
+
+      - name: Run tests
+        run: uv run pytest
+
   test:
     name: Tests (${{ matrix.browser }})
     timeout-minutes: 60
@@ -53,7 +59,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: [chromium, firefox, webkit]
+        browser: [ chromium, firefox, webkit ]
     env:
       SAUCEDEMO_USERNAME: ${{ secrets.SAUCEDEMO_USERNAME }}
       SAUCEDEMO_PASSWORD: ${{ secrets.SAUCEDEMO_PASSWORD }}
