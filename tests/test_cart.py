@@ -1,11 +1,14 @@
 """Shopping cart tests for the saucedemo site."""
 
 from __future__ import annotations
+
+import pytest
 from playwright.sync_api import expect
 
 from pages.inventory_page import InventoryPage
 
 
+@pytest.mark.smoke
 def test_cart_contains_expected_item(cart_page_with_item):
     expect(cart_page_with_item.get_item_locator("Sauce Labs Backpack")).to_be_visible()
 
@@ -22,7 +25,9 @@ def test_cart_shows_multiple_items(cart_page_with_multiple_items):
 def test_remove_one_item_from_cart(cart_page_with_multiple_items):
     cart_page_with_multiple_items.remove_item("Sauce Labs Bolt T-Shirt")
     expect(cart_page_with_multiple_items.get_item_names_locator()).to_have_count(2)
-    expect(cart_page_with_multiple_items.get_item_locator("Sauce Labs Bolt T-Shirt")).not_to_be_visible()
+    expect(
+        cart_page_with_multiple_items.get_item_locator("Sauce Labs Bolt T-Shirt")
+    ).not_to_be_visible()
 
 
 def test_cart_is_empty_after_removing_all_items(cart_page_with_multiple_items):
@@ -57,6 +62,4 @@ def test_cart_prices_match_inventory(cart_page_with_multiple_items):
 
     cart.navigate()
     for item in items:
-        expect(cart.get_item_price_locator(item)).to_have_text(
-            inventory_prices[item]
-        )
+        expect(cart.get_item_price_locator(item)).to_have_text(inventory_prices[item])
