@@ -2,16 +2,18 @@
 
 from __future__ import annotations
 
+from playwright.sync_api import Page, Response
+
 
 class BasePage:
     """Common state and navigation shared by every page object."""
 
     url: str = ""
 
-    def __init__(self, page) -> None:
+    def __init__(self, page: Page) -> None:
         self.page = page
 
-    def navigate(self):
+    def navigate(self) -> Response | None:
         """Open the page via `page.goto()`, resolved against `--base-url`."""
         return self.page.goto(self.url)
 
