@@ -3,11 +3,19 @@
 from __future__ import annotations
 
 import pytest
+from faker import Faker
 from playwright.sync_api import Page
 
 from pages.cart_page import CartPage
+from pages.checkout_page import CheckoutPage
 from pages.login_page import LoginPage
 from pages.inventory_page import InventoryPage
+
+
+@pytest.fixture
+def faker() -> Faker:
+    """A seeded Faker instance for generating realistic test data."""
+    return Faker()
 
 
 @pytest.fixture
@@ -53,3 +61,19 @@ def cart_page_with_multiple_items(inventory_page: InventoryPage) -> CartPage:
     inventory_page.add_item_to_cart("Sauce Labs Onesie")
     inventory_page.go_to_cart()
     return CartPage(inventory_page.page)
+
+
+@pytest.fixture
+def checkout_page(cart_page_with_item: CartPage) -> CheckoutPage:
+    """A CheckoutPage (step one) reached from a cart holding one item."""
+    cart_page_with_item.go_to_checkout()
+    return CheckoutPage(cart_page_with_item.page)
+
+
+@pytest.fixture
+def checkout_page_with_multiple_items(
+        cart_page_with_multiple_items: CartPage,
+) -> CheckoutPage:
+    """A CheckoutPage (step one) reached from a cart holding multiple items."""
+    cart_page_with_multiple_items.go_to_checkout()
+    return CheckoutPage(cart_page_with_multiple_items.page)
