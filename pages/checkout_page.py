@@ -25,12 +25,12 @@ class CheckoutPage(BasePage):
         self.postal_code_input = page.get_by_test_id("postalCode")
         self.continue_button = page.get_by_test_id("continue")
         self.cancel_button = page.get_by_test_id("cancel")
-        self.error_message = page.get_by_test_id("error-message")
+        self.error_message = page.get_by_test_id("error")
 
         # Step two — order summary
         self.finish_button = page.get_by_test_id("finish")
         self.complete_header = page.get_by_test_id("complete-header")
-        self.summary_items = page.get_by_test_id("cart-item")
+        self.summary_items = page.get_by_test_id("inventory-item")
 
     def fill_customer_info(
             self, first_name: str, last_name: str, postal_code: str
