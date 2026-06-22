@@ -23,40 +23,77 @@ demo site by Sauce Labs — built with **Python**, **Playwright**, and
 ```
 .
 ├── .github/workflows/playwright.yml   # CI: push, PR, nightly
-├── conftest.py                        # Shared fixtures (credentials, base url)
+├── conftest.py                        # Shared fixtures (credentials, base url, test-id mapping)
 ├── pages/                             # Page Object Model
+│   ├── __init__.py
 │   ├── base_page.py                   # Minimal base: page + url + navigate()
 │   ├── login_page.py
 │   ├── inventory_page.py
 │   ├── cart_page.py
-│   └── checkout_page.py
+│   ├── checkout_page.py
+│   ├── product_detail_page.py
+│   └── footer_component.py            # Shared footer component
 ├── tests/
-│   ├── conftest.py                    # logged_in_page, inventory_page fixtures
+│   ├── __init__.py
+│   ├── conftest.py                    # logged_in_page, inventory_page, cart, checkout fixtures
 │   ├── test_login.py
 │   ├── test_inventory.py
 │   ├── test_cart.py
-│   └── test_checkout.py
-└── pyproject.toml                     # Deps + pytest/Playwright config
+│   ├── test_cart_persistence.py
+│   ├── test_checkout.py
+│   ├── test_product_detail.py
+│   ├── test_sorting.py
+│   ├── test_footer.py                 # Shared footer component tests
+│   └── test_edge_users.py             # problem_user / error_user broken behaviour
+├── pyproject.toml                     # Deps + pytest/Playwright config
+└── uv.lock                            # Pinned dependency lockfile for reproducible installs
 ```
 
 ## Test credentials
 
-The suite uses saucedemo's publicly documented test account (`standard_user` /
-`secret_sauce`) defined as constants in [`conftest.py`](conftest.py). Swap to
-`locked_out_user`, `problem_user`, etc. in the page object methods to exercise
-edge cases.
+The suite reads saucedemo credentials from environment variables so credentials
+are not hard-coded in the test code:
+
+| Variable | Example value |
+| --- | --- |
+| `SAUCEDEMO_USERNAME` | `standard_user` |
+| `SAUCEDEMO_PASSWORD` | `secret_sauce` |
+
+The password is included in `.env.example` because Saucedemo is a public demo
+site and these credentials are intentionally published for test automation
+practice. For a real application, never commit usable credentials; keep only
+placeholders in committed templates and inject real values via a secret manager
+or CI secrets.
+
+For local runs, `python-dotenv` loads these values from a local `.env` file when
+one is present. The `.env` file is ignored by Git; commit only `.env.example` as
+the safe template.
+
+For CI, configure these values as GitHub Actions secrets. The edge-user tests
+still swap usernames such as `problem_user` and `error_user` while reusing the
+injected password.
 
 ## Local setup
 
 > Requires Python 3.13+ and [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
-```bash
+```powershell
 # 1. Install dependencies (creates a .venv automatically)
 uv sync
 
 # 2. Install the Playwright browser binaries
 uv run playwright install chromium
+
+# 3. Create a local dotenv file from the committed template
+copy .env.example .env
+
+# 4. Review .env; the template already contains Saucedemo's public demo credentials
+#    SAUCEDEMO_USERNAME=standard_user
+#    SAUCEDEMO_PASSWORD=secret_sauce
 ```
+
+Alternatively, you can skip `.env` and export the same variables into the current
+shell session before running tests.
 
 ## Running tests
 
@@ -115,6 +152,10 @@ uv run allure serve allure-results
 
 ## CI
 
-Tests run automatically on every push, pull request, and nightly via the
-[Playwright workflow](.github/workflows/playwright.yml). Failed test artifacts
-(traces, screenshots, videos) are uploaded for 14 days.
+Tests run automatically via the [Playwright workflow](.github/workflows/playwright.yml):
+
+- Pull requests run the smoke suite across Chromium, Firefox, and WebKit.
+- Pushes to `main`/`master` and nightly schedules run the full suite across
+  Chromium, Firefox, and WebKit.
+- Failed test artifacts (traces, screenshots, videos) and Allure results are
+  uploaded per browser for 14 days.
