@@ -60,7 +60,7 @@ def saucedemo_credentials() -> dict[str, str]:
 @pytest.fixture(params=VALID_USERS, ids=VALID_USERS)
 def valid_user(request) -> str:
     """Parametrized fixture yielding each saucedemo username that can log in."""
-    return request.param
+    return str(request.param)
 
 
 @pytest.fixture(autouse=True)

@@ -45,7 +45,7 @@ class InventoryPage(BasePage):
     def get_item_price(self, item_name: str) -> str:
         price = self._item_locator(item_name).get_by_test_id("inventory-item-price")
         price.wait_for()
-        return price.inner_text()
+        return str(price.inner_text())
 
     def sort_by(self, option: str) -> None:
         """Select a sort option ('az', 'za', 'lohi', 'hilo')."""

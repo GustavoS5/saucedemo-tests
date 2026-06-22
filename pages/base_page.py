@@ -20,4 +20,4 @@ class BasePage:
     @property
     def current_url(self) -> str:
         """The page's current full URL."""
-        return self.page.url
+        return str(self.page.url)

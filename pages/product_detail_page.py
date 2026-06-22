@@ -8,7 +8,10 @@ from pages.base_page import BasePage
 
 
 class ProductDetailPage(BasePage):
-    """Represents /inventory-item.html — reached via an item link, not direct navigation."""
+    """Represents /inventory-item.html.
+
+    Reached via an item link, not direct navigation.
+    """
 
     def __init__(self, page: Page) -> None:
         super().__init__(page)
@@ -31,15 +34,15 @@ class ProductDetailPage(BasePage):
 
     def get_name(self) -> str:
         """Return the product name shown on the detail page."""
-        return self.item_name.inner_text()
+        return str(self.item_name.inner_text())
 
     def get_description(self) -> str:
         """Return the product description shown on the detail page."""
-        return self.item_desc.inner_text()
+        return str(self.item_desc.inner_text())
 
     def get_price(self) -> str:
         """Return the product price shown on the detail page."""
-        return self.item_price.inner_text()
+        return str(self.item_price.inner_text())
 
     def add_to_cart(self) -> None:
         """Click 'Add to cart' from the detail page."""

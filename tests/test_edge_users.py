@@ -134,7 +134,7 @@ def test_problem_user_checkout_form_fields_misaligned(problem_user_checkout, pag
 
 
 def test_problem_user_checkout_cannot_complete_normally(
-        problem_user_checkout, page, base_url: str
+    problem_user_checkout, page, base_url: str
 ):
     """Checkout step one cannot be completed normally as problem_user."""
     checkout = problem_user_checkout

@@ -40,4 +40,4 @@ class LoginPage(BasePage):
 
     def get_error(self) -> str:
         """Return the error message text shown on a failed login."""
-        return self.error_message.inner_text()
+        return str(self.error_message.inner_text())

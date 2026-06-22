@@ -56,7 +56,7 @@ class CartPage(BasePage):
     def get_item_price(self, item_name: str) -> str:
         price = self.get_item_price_locator(item_name)
         price.wait_for()
-        return price.inner_text()
+        return str(price.inner_text())
 
     def go_to_checkout(self) -> None:
         """Proceed to the first checkout step."""
