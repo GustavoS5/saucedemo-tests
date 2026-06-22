@@ -7,6 +7,8 @@ information (/checkout-step-one.html) and step two reviews the order summary
 
 from __future__ import annotations
 
+from playwright.sync_api import Page
+
 from pages.base_page import BasePage
 
 
@@ -15,7 +17,7 @@ class CheckoutPage(BasePage):
 
     url = "/checkout-step-one.html"
 
-    def __init__(self, page) -> None:
+    def __init__(self, page: Page) -> None:
         super().__init__(page)
         self.title = page.get_by_test_id("title")
 
@@ -33,17 +35,17 @@ class CheckoutPage(BasePage):
         self.summary_items = page.get_by_test_id("inventory-item")
 
     def fill_customer_info(
-            self, first_name: str, last_name: str, postal_code: str
-    ):
+        self, first_name: str, last_name: str, postal_code: str
+    ) -> None:
         """Fill out the checkout customer information form."""
         self.first_name_input.fill(first_name)
         self.last_name_input.fill(last_name)
         self.postal_code_input.fill(postal_code)
 
-    def continue_to_overview(self):
+    def continue_to_overview(self) -> None:
         """Submit the customer info form to reach the order overview."""
         self.continue_button.click()
 
-    def complete_order(self):
+    def complete_order(self) -> None:
         """Finalize the order from the overview screen."""
         self.finish_button.click()
