@@ -6,7 +6,7 @@ __pycache__/
 venv/
 .pytest_cache/
 
-# Environment variables (reserved for future projects with real secrets)
+# Environment variables (loaded locally by python-dotenv; CI injects via secrets)
 .env
 
 # Playwright
