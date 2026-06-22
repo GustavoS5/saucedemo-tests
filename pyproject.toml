@@ -14,6 +14,8 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "mypy>=2.1.0",
+    "pre-commit>=4.6.0",
     "ruff>=0.6.0",
 ]
 
@@ -50,6 +52,12 @@ ignore = [
 [tool.ruff.format]
 # Match Black defaults for line length/quote style.
 quote-style = "double"
+
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
 
 [tool.allure]
 # allure results are written here; `allure serve allure-results` to view
