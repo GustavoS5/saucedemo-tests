@@ -117,6 +117,18 @@ uv run pytest tests/test_login.py
 | `e2e`      | End-to-end user flow tests |
 | `negative` | Error and validation paths |
 
+## Edge users test behavior
+
+`tests/test_edge_users.py` covers two saucedemo accounts that are
+intentionally buggy demo users:
+
+- **`problem_user`** — every product image is swapped for the same 404
+  placeholder graphic, and the sort dropdown silently fails to reorder the
+  list.
+- **`error_user`** — the checkout `lastName` field is wired to a handler
+  that throws a JavaScript `TypeError` on input, so the value never
+  registers and checkout can't complete normally.
+
 ## Debugging failed tests
 
 The Playwright CLI flags are pre-configured in [`pyproject.toml`](pyproject.toml):
