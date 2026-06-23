@@ -1,0 +1,40 @@
+# Exclude from the Docker build context to keep builds fast and cacheable.
+**/__pycache__/
+**/*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# VCS and editor internals
+.git/
+.gitignore
+.gitattributes
+.github/
+.idea/
+.vscode/
+
+# Local tooling caches not needed in the image
+.pre-commit-config.yaml
+
+# Generated test/report artifacts (created by the container at runtime)
+test-results/
+allure-results/
+allure-report/
+docs/
+
+# Secrets are injected at runtime via -e / env_file
+.env
+
+# Docker files don't belong inside the image
+Dockerfile
+Dockerfile.*
+.dockerignore
+docker-compose*.yml
+compose.y*ml
+
+README.md
+LICENSE
+**/.DS_Store

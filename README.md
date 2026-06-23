@@ -161,3 +161,55 @@ Tests run automatically via the [Playwright workflow](.github/workflows/playwrig
   Chromium, Firefox, and WebKit.
 - Failed test artifacts (traces, screenshots, videos) and Allure results are
   uploaded per browser for 14 days.
+
+## Docker
+
+Run the entire suite in a container with no local Python, `uv`, or Playwright
+install required. The image is based on `python:3.13-slim-bookworm`, installs
+dependencies from the pinned [`uv.lock`](uv.lock), and bakes in a headless
+Chromium build.
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) (Engine 24+ or Docker Desktop)
+- [Docker Compose v2](https://docs.docker.com/compose/install/) (bundled with
+  modern Docker Desktop)
+
+### Quick start
+
+```bash
+# 1. Provide credentials (public demo password; safe to commit)
+cp .env.docker.example .env
+
+# 2. Build the image
+docker compose build
+
+# 3. Run the full suite
+docker compose run --rm pytest
+
+# Smoke tests only
+docker compose run --rm pytest -m smoke
+
+# A single test file
+docker compose run --rm pytest tests/test_login.py
+```
+
+Traces, screenshots, video, and Allure results are bind-mounted back to the
+host under `test-results/` and `allure-results/`.
+
+### Plain Docker (without compose)
+
+```bash
+# Build
+docker build -t saucedemo-tests .
+
+# Run the smoke suite, forward the password from your shell
+docker run --rm \
+  -e SAUCEDEMO_PASSWORD="$SAUCEDEMO_PASSWORD" \
+  -v "$(pwd)/test-results:/app/test-results" \
+  -v "$(pwd)/allure-results:/app/allure-results" \
+  saucedemo-tests -m smoke -n auto
+```
+
+> On Windows PowerShell, replace `$(pwd)` with `${PWD}` and remove the
+> backslash line continuations.
