@@ -63,7 +63,20 @@ site with intentionally published credentials.
 
 > Requires Python 3.13+ and [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
+```bash
+# macOS/Linux
+# 1. Install dependencies (creates a .venv automatically)
+uv sync
+
+# 2. Install the Playwright browser binaries
+uv run playwright install chromium
+
+# 3. Create a local dotenv file from the template and set your password
+cp .env.example .env
+```
+
 ```powershell
+# Windows (PowerShell)
 # 1. Install dependencies (creates a .venv automatically)
 uv sync
 
