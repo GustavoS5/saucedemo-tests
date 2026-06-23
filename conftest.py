@@ -27,12 +27,14 @@ TEST_ID_ATTRIBUTE = "data-test"
 
 @pytest.fixture
 def saucedemo_password() -> str:
-    """The shared saucedemo password, read from ``SAUCEDEMO_PASSWORD``."""
-    password = os.environ.get("SAUCEDEMO_PASSWORD", "").strip().strip("'\"")
+    """The shared saucedemo password, read from SAUCEDEMO_PASSWORD."""
+    password = os.environ.get("SAUCEDEMO_PASSWORD", "").strip()
+
     if not password:
         raise RuntimeError(
             "Set SAUCEDEMO_PASSWORD environment variable before running tests."
         )
+
     return password
 
 
