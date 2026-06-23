@@ -25,12 +25,6 @@ VALID_USERS = (
 TEST_ID_ATTRIBUTE = "data-test"
 
 
-@pytest.fixture(scope="session")
-def base_url() -> str:
-    """Base URL for the site under test."""
-    return "https://www.saucedemo.com"
-
-
 @pytest.fixture
 def saucedemo_password() -> str:
     """The shared saucedemo password, read from ``SAUCEDEMO_PASSWORD``."""
