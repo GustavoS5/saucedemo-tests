@@ -8,14 +8,14 @@ demo site by Sauce Labs — built with **Python**, **Playwright**, and
 
 ## Tech stack
 
-| Tool | Purpose |
-| --- | --- |
-| [Playwright](https://playwright.dev/python/) | Browser automation & web-first assertions |
-| [pytest](https://docs.pytest.org/) | Test runner |
+| Tool                                                                 | Purpose                                                           |
+|----------------------------------------------------------------------|-------------------------------------------------------------------|
+| [Playwright](https://playwright.dev/python/)                         | Browser automation & web-first assertions                         |
+| [pytest](https://docs.pytest.org/)                                   | Test runner                                                       |
 | [pytest-playwright](https://playwright.dev/python/docs/test-runners) | Playwright fixtures for pytest (`page`, `context`, `base_url`, …) |
-| [pytest-xdist](https://pytest-xdist.readthedocs.io/) | Parallel test execution |
-| [allure-pytest](https://allurereport.org/docs/pytest/) | Rich HTML test reports |
-| [uv](https://docs.astral.sh/uv/) | Fast Python package manager |
+| [pytest-xdist](https://pytest-xdist.readthedocs.io/)                 | Parallel test execution                                           |
+| [allure-pytest](https://allurereport.org/docs/pytest/)               | Rich HTML test reports                                            |
+| [uv](https://docs.astral.sh/uv/)                                     | Fast Python package manager                                       |
 
 ## Project structure
 
@@ -98,16 +98,17 @@ uv run pytest tests/test_login.py
 
 ### Test markers
 
-| Marker | Meaning |
-| --- | --- |
-| `smoke`     | Fast core happy-path tests |
-| `e2e`       | End-to-end user flow tests |
-| `negative`  | Error and validation paths |
+| Marker     | Meaning                    |
+|------------|----------------------------|
+| `smoke`    | Fast core happy-path tests |
+| `e2e`      | End-to-end user flow tests |
+| `negative` | Error and validation paths |
 
 ## Debugging failed tests
 
 The Playwright CLI flags are pre-configured in [`pyproject.toml`](pyproject.toml):
 
+- `--base-url=https://www.saucedemo.com`
 - `--tracing=retain-on-failure`
 - `--screenshot=only-on-failure`
 - `--video=retain-on-failure`
