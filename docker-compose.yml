@@ -14,6 +14,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        # Which Playwright browser(s) to bake into the image.
+        # Default: chromium (small image). To mirror the CI matrix, build with
+        # `docker compose build --build-arg PLAYWRIGHT_BROWSERS="chromium firefox webkit"`.
+        PLAYWRIGHT_BROWSERS: "chromium"
     image: saucedemo-tests:latest
     container_name: saucedemo-tests
 
@@ -25,8 +30,16 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
 
+    # Larger /dev/shm improves Chromium stability under parallel test load
+    # (pytest-xdist). The default 64 MB container limit can cause crashes.
+    shm_size: "2gb"
+
     # Persist run artifacts back to the host so traces, screenshots,
     # video, and Allure results are inspectable after the container exits.
+    # The container runs as the non-root appuser (default UID/GID 1001).
+    # On Linux, if these host dirs are root-owned after a first run, create
+    # them owned by your UID or build with matching APP_UID/APP_GID (see
+    # Dockerfile). Docker Desktop (macOS/Windows) handles this transparently.
     volumes:
       - ./test-results:/app/test-results
       - ./allure-results:/app/allure-results

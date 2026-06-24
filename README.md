@@ -165,9 +165,13 @@ Tests run automatically via the [Playwright workflow](.github/workflows/playwrig
 ## Docker
 
 Run the entire suite in a container with no local Python, `uv`, or Playwright
-install required. The image is based on `python:3.13-slim-bookworm`, installs
-dependencies from the pinned [`uv.lock`](uv.lock), and bakes in a headless
-Chromium build.
+install required. The image:
+
+- is based on `python:3.13-slim-bookworm`;
+- installs dependencies from the pinned [`uv.lock`](uv.lock) via `uv`;
+- **runs as a non-root user** (`appuser`, default UID/GID `1001`) for better
+  isolation; and
+- bakes in a headless **Chromium** build by default (configurable — see below).
 
 ### Prerequisites
 
@@ -195,17 +199,47 @@ docker compose run --rm pytest tests/test_login.py
 ```
 
 Traces, screenshots, video, and Allure results are bind-mounted back to the
-host under `test-results/` and `allure-results/`.
+host under `test-results/` and `allure-results/`. The Compose service also
+sets `shm_size: 2gb` for Chromium stability under parallel (`-n auto`) runs.
+
+### Browser selection at build time (`PLAYWRIGHT_BROWSERS`)
+
+The Dockerfile accepts a `PLAYWRIGHT_BROWSERS` build ARG (default `chromium`)
+so you can choose what gets baked into the image without editing files. The
+Compose service passes `chromium` by default in
+[`docker-compose.yml`](docker-compose.yml).
+
+```bash
+# Build with all browsers to mirror the CI matrix
+docker compose build --build-arg PLAYWRIGHT_BROWSERS="chromium firefox webkit"
+
+# Then run a specific browser (the image must contain that browser)
+docker compose run --rm pytest --browser firefox
+```
+
+### File ownership on Linux (non-root container)
+
+The container runs as `appuser` (default UID/GID `1001`). On Docker Desktop
+(macOS/Windows) bind-mounted artifact directories work transparently. On
+**Linux**, if `test-results/`/`allure-results/` end up owned by `root`,
+rebuild matching your host user:
+
+```bash
+docker compose build --build-arg APP_UID="$(id -u)" --build-arg APP_GID="$(id -g)"
+```
+
+…or pre-create the dirs as your user (`mkdir -p test-results allure-results`).
 
 ### Plain Docker (without compose)
 
 ```bash
-# Build
+# Build (default: chromium only)
 docker build -t saucedemo-tests .
 
 # Run the smoke suite, forward the password from your shell
 docker run --rm \
   -e SAUCEDEMO_PASSWORD="$SAUCEDEMO_PASSWORD" \
+  --shm-size=2gb \
   -v "$(pwd)/test-results:/app/test-results" \
   -v "$(pwd)/allure-results:/app/allure-results" \
   saucedemo-tests -m smoke -n auto
