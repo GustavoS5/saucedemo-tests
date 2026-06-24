@@ -17,7 +17,7 @@ playwright-report/
 allure-results/
 allure-report/
 
-# Internal design docs (working artifacts, not portfolio content)
+# Local working notes
 docs/
 
 # IDE

@@ -43,7 +43,7 @@ demo site by Sauce Labs — built with **Python**, **Playwright**, and
 │   ├── test_product_detail.py
 │   ├── test_sorting.py
 │   ├── test_footer.py                 # Shared footer component tests
-│   └── test_edge_users.py             # problem_user / error_user broken behaviour
+│   └── test_edge_users.py             # Known defects in special demo accounts
 ├── pyproject.toml                     # Deps + pytest/Playwright config
 └── uv.lock                            # Pinned dependency lockfile for reproducible installs
 ```
@@ -51,8 +51,9 @@ demo site by Sauce Labs — built with **Python**, **Playwright**, and
 ## Test credentials
 
 The suite reads the shared saucedemo password from `SAUCEDEMO_PASSWORD`.
-The default login uses `standard_user`; other users (`problem_user`,
-`error_user`, etc.) are parametrized directly in their test files.
+Most tests use `standard_user`. The root fixtures parametrize the supported
+login accounts, while tests for intentionally defective accounts live in
+`tests/test_edge_users.py`.
 The `.env` file is gitignored — copy `.env.example` as your local
 template. For CI, set `SAUCEDEMO_PASSWORD` as a GitHub Actions secret.
 
@@ -111,23 +112,46 @@ uv run pytest tests/test_login.py
 
 ### Test markers
 
-| Marker     | Meaning                    |
-|------------|----------------------------|
-| `smoke`    | Fast core happy-path tests |
-| `e2e`      | End-to-end user flow tests |
-| `negative` | Error and validation paths |
+| Marker      | Meaning                                                        |
+|-------------|----------------------------------------------------------------|
+| `smoke`     | Fast core happy-path tests                                     |
+| `e2e`       | End-to-end user flow tests                                     |
+| `negative`  | Error and validation paths                                     |
+| `known_bug` | Expected behavior currently blocked by a known SauceDemo defect |
 
-## Edge users test behavior
+## Known upstream defects
 
 `tests/test_edge_users.py` covers two saucedemo accounts that are
 intentionally buggy demo users:
 
 - **`problem_user`** — every product image is swapped for the same 404
-  placeholder graphic, and the sort dropdown silently fails to reorder the
-  list.
+  placeholder graphic, sorting does not reorder the list correctly, and
+  checkout fields do not retain their values independently.
 - **`error_user`** — the checkout `lastName` field is wired to a handler
   that throws a JavaScript `TypeError` on input, so the value never
   registers and checkout can't complete normally.
+
+These tests assert the behavior a working application should provide and are
+marked `xfail(strict=False)`. A known defect is therefore reported as XFAIL
+without hiding failures elsewhere. If SauceDemo fixes a defect, the
+corresponding test reports XPASS so the marker can be reviewed and removed.
+
+## Design decisions
+
+- Page objects keep selectors and page-level actions separate from test
+  intent. Shared UI such as the footer is represented as a component rather
+  than duplicated across page objects.
+- Locators prefer SauceDemo's `data-test` hooks. The project configures
+  Playwright's test-id selector once, so tests avoid CSS classes tied to
+  presentation.
+- Function-scoped Playwright pages and fixtures give each test an isolated
+  browser context. Higher-level fixtures build reusable states such as an
+  authenticated inventory page or a cart containing known products.
+- Known defects assert the desired behavior and use non-strict XFAIL markers.
+  This documents upstream limitations while allowing CI to reveal when a
+  defect has been fixed.
+- Pull requests run the complete suite on Chromium for fast feedback.
+  Pushes and nightly runs add Firefox and WebKit coverage.
 
 ## Debugging failed tests
 
@@ -147,16 +171,22 @@ uv run playwright show-trace test-results/<test-name>/trace.zip
 ## Allure reports
 
 ```bash
-# Generate results and serve a live report
+# Generate Allure result files
 uv run pytest --alluredir=allure-results
-uv run allure serve allure-results
+
+# Serve them with a separately installed Allure CLI
+allure serve allure-results
 ```
+
+The report adapter is installed with the project. Viewing the report also
+requires the separate
+[Allure command-line tool](https://allurereport.org/docs/install/).
 
 ## CI
 
 Tests run automatically via the [Playwright workflow](.github/workflows/playwright.yml):
 
-- Pull requests run the smoke suite across Chromium, Firefox, and WebKit.
+- Pull requests run the full suite on Chromium.
 - Pushes to `main`/`master` and nightly schedules run the full suite across
   Chromium, Firefox, and WebKit.
 - Failed test artifacts (traces, screenshots, videos) and Allure results are
@@ -182,7 +212,7 @@ install required. The image:
 ### Quick start
 
 ```bash
-# 1. Provide credentials (public demo password; safe to commit)
+# 1. Provide the publicly documented SauceDemo test credential
 cp .env.docker.example .env
 
 # 2. Build the image

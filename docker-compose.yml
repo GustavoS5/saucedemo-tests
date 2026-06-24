@@ -1,13 +1,8 @@
-# docker-compose for the saucedemo E2E suite.
-#
 # Usage:
 #   1. Provide credentials:  copy .env.docker.example to .env
 #   2. Build:                 docker compose build
 #   3. Run smoke suite:       docker compose run --rm pytest -m smoke
 #   4. Run full suite:        docker compose run --rm pytest
-#
-# Args after the service name (`pytest`) are forwarded to the pytest
-# entrypoint defined in the Dockerfile.
 
 services:
   pytest:
@@ -15,14 +10,12 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        # Which Playwright browser(s) to bake into the image.
-        # Default: chromium (small image). To mirror the CI matrix, build with
+        # To mirror the CI matrix, build with
         # `docker compose build --build-arg PLAYWRIGHT_BROWSERS="chromium firefox webkit"`.
         PLAYWRIGHT_BROWSERS: "chromium"
     image: saucedemo-tests:latest
     container_name: saucedemo-tests
 
-    # Credentials come from a local .env file when present
     env_file:
       - path: .env
         required: false
@@ -30,20 +23,13 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
 
-    # Larger /dev/shm improves Chromium stability under parallel test load
-    # (pytest-xdist). The default 64 MB container limit can cause crashes.
+    # Avoid Chromium crashes under parallel test load.
     shm_size: "2gb"
 
-    # Persist run artifacts back to the host so traces, screenshots,
-    # video, and Allure results are inspectable after the container exits.
-    # The container runs as the non-root appuser (default UID/GID 1001).
-    # On Linux, if these host dirs are root-owned after a first run, create
-    # them owned by your UID or build with matching APP_UID/APP_GID (see
-    # Dockerfile). Docker Desktop (macOS/Windows) handles this transparently.
+    # Persist traces, screenshots, video, and Allure results on the host.
     volumes:
       - ./test-results:/app/test-results
       - ./allure-results:/app/allure-results
 
-    # Default args appended to the pytest entrypoint (parallel run).
-    # Override from the CLI, e.g. `docker compose run --rm pytest -m smoke`.
+    # Arguments after the service name override this default.
     command: [ "-n", "auto" ]

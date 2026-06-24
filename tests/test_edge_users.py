@@ -1,4 +1,4 @@
-"""Edge-case tests for problem_user and error_user broken behaviour."""
+"""Expected-behavior tests for known defects in special SauceDemo accounts."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from pages.inventory_page import InventoryPage
 from pages.login_page import LoginPage
 
 KNOWN_BUG = pytest.mark.xfail(
-    reason="Documents intentionally broken behaviour in the upstream SauceDemo app",
+    reason="Blocked by a known defect in the upstream SauceDemo application",
     strict=False,
 )
 
