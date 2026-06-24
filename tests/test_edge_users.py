@@ -71,25 +71,24 @@ def test_problem_user_inventory_loads(problem_user_inventory, base_url: str):
 
 @pytest.mark.known_bug
 @KNOWN_BUG
-def test_problem_user_images_are_placeholder(problem_user_inventory):
-    """Every inventory image is the 404/placeholder graphic, not the product."""
+def test_problem_user_images_are_valid(problem_user_inventory):
+    """Inventory images should use real product graphics, not placeholders."""
     imgs = problem_user_inventory.page.locator('[data-test="inventory-item"] img')
     expect(imgs).not_to_have_count(0)
 
     for i in range(imgs.count()):
-        expect(imgs.nth(i)).to_have_attribute("src", re.compile("sl-404"))
+        expect(imgs.nth(i)).not_to_have_attribute("src", re.compile("sl-404"))
 
 
 @pytest.mark.known_bug
 @KNOWN_BUG
-def test_problem_user_all_images_identical(problem_user_inventory):
-    """All inventory images share the same (broken) source URL."""
+def test_problem_user_images_are_product_specific(problem_user_inventory):
+    """Inventory products should not all display the same image."""
     imgs = problem_user_inventory.page.locator('[data-test="inventory-item"] img')
     expect(imgs).not_to_have_count(0)
 
-    first_src = imgs.first.get_attribute("src")
-    for i in range(imgs.count()):
-        expect(imgs.nth(i)).to_have_attribute("src", first_src)
+    sources = [imgs.nth(i).get_attribute("src") for i in range(imgs.count())]
+    assert len(set(sources)) == imgs.count()
 
 
 # --- problem_user: broken sorting ----------------------------------------
@@ -97,23 +96,21 @@ def test_problem_user_all_images_identical(problem_user_inventory):
 
 @pytest.mark.known_bug
 @KNOWN_BUG
-def test_problem_user_sort_price_low_to_high_broken(problem_user_inventory):
-    """Sorting by price (low to high) does not actually reorder items."""
+def test_problem_user_sorts_price_low_to_high(problem_user_inventory):
+    """Sorting by price should reorder products from low to high."""
     problem_user_inventory.sort_by("lohi")
     prices = problem_user_inventory.get_item_prices_in_order()
-    assert prices != sorted(prices), (
-        f"Expected broken sorting (unsorted prices), but got {prices}"
-    )
+    assert prices == sorted(prices), f"Prices were not sorted low to high: {prices}"
 
 
 @pytest.mark.known_bug
 @KNOWN_BUG
-def test_problem_user_sort_name_descending_broken(problem_user_inventory):
-    """Sorting by name (Z to A) does not reorder items for problem_user."""
+def test_problem_user_sorts_name_descending(problem_user_inventory):
+    """Sorting by name should reorder products from Z to A."""
     problem_user_inventory.sort_by("za")
     names = problem_user_inventory.get_item_names_in_order()
-    assert names != sorted(names, reverse=True), (
-        f"Expected broken sorting (not reverse-alpha), but got {names}"
+    assert names == sorted(names, reverse=True), (
+        f"Names were not sorted from Z to A: {names}"
     )
 
 
@@ -122,8 +119,8 @@ def test_problem_user_sort_name_descending_broken(problem_user_inventory):
 
 @pytest.mark.known_bug
 @KNOWN_BUG
-def test_problem_user_checkout_form_fields_misaligned(problem_user_checkout, page):
-    """Filling lastName overwrites firstName — fields are wired incorrectly."""
+def test_problem_user_checkout_fields_accept_input(problem_user_checkout, page):
+    """Checkout fields should independently retain their entered values."""
     checkout = problem_user_checkout
 
     checkout.first_name_input.fill("Alpha")
@@ -134,38 +131,23 @@ def test_problem_user_checkout_form_fields_misaligned(problem_user_checkout, pag
     first_val = page.get_by_test_id("firstName").input_value()
     last_val = page.get_by_test_id("lastName").input_value()
 
-    assert (first_val, last_val) != ("Alpha", "Beta"), (
-        f"Expected misaligned form fields, but got firstName='{first_val}', "
-        f"lastName='{last_val}' — fields appear to work correctly"
-    )
+    assert (first_val, last_val) == ("Alpha", "Beta")
 
 
 @pytest.mark.known_bug
 @KNOWN_BUG
-def test_problem_user_checkout_cannot_complete_normally(
+def test_problem_user_checkout_accepts_customer_info(
     problem_user_checkout, page, base_url: str
 ):
-    """Checkout step one cannot be completed normally as problem_user."""
+    """Valid customer information should advance checkout to the overview."""
     checkout = problem_user_checkout
 
     checkout.first_name_input.fill("Test")
     checkout.last_name_input.fill("User")
     checkout.postal_code_input.fill("12345")
 
-    values = {
-        "firstName": page.get_by_test_id("firstName").input_value(),
-        "lastName": page.get_by_test_id("lastName").input_value(),
-        "postalCode": page.get_by_test_id("postalCode").input_value(),
-    }
-
-    assert values != {
-        "firstName": "Test",
-        "lastName": "User",
-        "postalCode": "12345",
-    }, (
-        f"All form fields accepted input correctly ({values}), "
-        "but problem_user should have at least one misaligned field"
-    )
+    checkout.continue_to_overview()
+    expect(page).to_have_url(f"{base_url}/checkout-step-two.html")
 
 
 # --- error_user: JavaScript errors + broken checkout field ----------------
@@ -194,8 +176,8 @@ def test_error_user_checkout_reaches_step_one(error_user_checkout, base_url: str
 
 @pytest.mark.known_bug
 @KNOWN_BUG
-def test_error_user_lastname_field_broken(error_user_checkout, page):
-    """Filling lastName triggers a JS TypeError and the value never registers."""
+def test_error_user_lastname_field_accepts_input(error_user_checkout, page):
+    """The last-name field should retain normally entered input."""
     checkout = error_user_checkout
 
     checkout.first_name_input.fill("Test")
@@ -204,27 +186,26 @@ def test_error_user_lastname_field_broken(error_user_checkout, page):
     expect(page.get_by_test_id("postalCode")).to_have_value("12345")
 
     checkout.last_name_input.fill("User")
-    expect(page.get_by_test_id("lastName")).not_to_have_value("User")
+    expect(page.get_by_test_id("lastName")).to_have_value("User")
 
 
 @pytest.mark.known_bug
 @KNOWN_BUG
-def test_error_user_lastname_onchange_throws_js_error(error_user_checkout, page):
-    """Typing into lastName triggers a JavaScript TypeError (pageerror)."""
+def test_error_user_lastname_change_has_no_js_error(error_user_checkout, page):
+    """Typing into lastName should not trigger an unhandled JavaScript error."""
+    page_errors = []
+    page.on("pageerror", page_errors.append)
 
-    with page.expect_event("pageerror", timeout=5000) as event_info:
-        page.get_by_test_id("lastName").type("Trigger")
+    page.get_by_test_id("lastName").press_sequentially("Trigger")
 
-    error = event_info.value
-    assert "TypeError" in str(error) or "undefined" in str(error), (
-        f"Expected a TypeError in page errors, got: {error}"
-    )
+    expect(page.get_by_test_id("lastName")).to_have_value("Trigger")
+    assert not page_errors, f"Unexpected page errors: {page_errors}"
 
 
 @pytest.mark.known_bug
 @KNOWN_BUG
-def test_error_user_cannot_complete_checkout(error_user_checkout, page, base_url: str):
-    """error_user cannot finish an order — the Finish button fails."""
+def test_error_user_can_complete_checkout(error_user_checkout, page, base_url: str):
+    """A valid order should reach the checkout confirmation screen."""
     checkout = error_user_checkout
 
     checkout.first_name_input.fill("Test")
@@ -235,8 +216,8 @@ def test_error_user_cannot_complete_checkout(error_user_checkout, page, base_url
     expect(page).to_have_url(f"{base_url}/checkout-step-two.html")
 
     checkout.complete_order()
-    expect(page).to_have_url(f"{base_url}/checkout-step-two.html")
-    expect(checkout.complete_header).not_to_be_visible()
+    expect(page).to_have_url(f"{base_url}/checkout-complete.html")
+    expect(checkout.complete_header).to_have_text("Thank you for your order!")
 
 
 def test_error_user_remove_item_from_cart(page, saucedemo_password, base_url: str):
