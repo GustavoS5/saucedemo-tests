@@ -21,13 +21,14 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "--base-url=https://www.saucedemo.com --reruns=2 --strict-markers --strict-config --tracing=retain-on-failure --screenshot=only-on-failure --video=retain-on-failure"
+addopts = "--base-url=https://www.saucedemo.com --strict-markers --strict-config --tracing=retain-on-failure --screenshot=only-on-failure --video=retain-on-failure"
 testpaths = ["tests"]
 pythonpath = ["."]
 markers = [
     "smoke: fast core happy-path tests",
     "e2e: end-to-end user flow tests",
     "negative: error and validation paths",
+    "known_bug: documents intentionally broken upstream application behaviour",
 ]
 
 [tool.ruff]
