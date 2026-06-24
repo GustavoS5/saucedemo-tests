@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 from playwright.sync_api import Locator, Page
 
 from pages.base_page import BasePage
@@ -28,7 +30,12 @@ class CartPage(BasePage):
         return [el.inner_text() for el in self.get_item_names_locator().all()]
 
     def get_item_locator(self, item_name: str) -> Locator:
-        return self.cart_items.filter(has_text=item_name)
+        """Return the exact cart row whose product title matches `item_name`."""
+        return self.cart_items.filter(
+            has=self.page.get_by_test_id("inventory-item-name").filter(
+                has_text=re.compile(rf"^{re.escape(item_name)}$")
+            )
+        )
 
     def has_item(self, item_name: str) -> bool:
         """Return True if a specific item is present in the cart."""
@@ -41,17 +48,11 @@ class CartPage(BasePage):
 
     def remove_item(self, item_name: str) -> None:
         """Remove an item from the cart by its name."""
-        self.cart_items.filter(has_text=item_name).get_by_role(
-            "button", name="Remove"
-        ).click()
+        self.get_item_locator(item_name).get_by_role("button", name="Remove").click()
 
     def get_item_price_locator(self, item_name: str) -> Locator:
         """Return the price locator for a specific cart item."""
-        return self.cart_items.filter(
-            has=self.page.get_by_test_id("inventory-item-name").filter(
-                has_text=item_name
-            )
-        ).get_by_test_id("inventory-item-price")
+        return self.get_item_locator(item_name).get_by_test_id("inventory-item-price")
 
     def get_item_price(self, item_name: str) -> str:
         price = self.get_item_price_locator(item_name)

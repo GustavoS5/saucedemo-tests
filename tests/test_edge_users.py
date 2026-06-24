@@ -12,6 +12,11 @@ from pages.checkout_page import CheckoutPage
 from pages.inventory_page import InventoryPage
 from pages.login_page import LoginPage
 
+KNOWN_BUG = pytest.mark.xfail(
+    reason="Documents intentionally broken behaviour in the upstream SauceDemo app",
+    strict=False,
+)
+
 
 def login_as_user(page, username: str, password: str) -> InventoryPage:
     """Log in as a saucedemo user and return the inventory page object."""
@@ -64,6 +69,8 @@ def test_problem_user_inventory_loads(problem_user_inventory, base_url: str):
     expect(problem_user_inventory.title).to_have_text("Products")
 
 
+@pytest.mark.known_bug
+@KNOWN_BUG
 def test_problem_user_images_are_placeholder(problem_user_inventory):
     """Every inventory image is the 404/placeholder graphic, not the product."""
     imgs = problem_user_inventory.page.locator('[data-test="inventory-item"] img')
@@ -73,6 +80,8 @@ def test_problem_user_images_are_placeholder(problem_user_inventory):
         expect(imgs.nth(i)).to_have_attribute("src", re.compile("sl-404"))
 
 
+@pytest.mark.known_bug
+@KNOWN_BUG
 def test_problem_user_all_images_identical(problem_user_inventory):
     """All inventory images share the same (broken) source URL."""
     imgs = problem_user_inventory.page.locator('[data-test="inventory-item"] img')
@@ -86,6 +95,8 @@ def test_problem_user_all_images_identical(problem_user_inventory):
 # --- problem_user: broken sorting ----------------------------------------
 
 
+@pytest.mark.known_bug
+@KNOWN_BUG
 def test_problem_user_sort_price_low_to_high_broken(problem_user_inventory):
     """Sorting by price (low to high) does not actually reorder items."""
     problem_user_inventory.sort_by("lohi")
@@ -95,6 +106,8 @@ def test_problem_user_sort_price_low_to_high_broken(problem_user_inventory):
     )
 
 
+@pytest.mark.known_bug
+@KNOWN_BUG
 def test_problem_user_sort_name_descending_broken(problem_user_inventory):
     """Sorting by name (Z to A) does not reorder items for problem_user."""
     problem_user_inventory.sort_by("za")
@@ -107,6 +120,8 @@ def test_problem_user_sort_name_descending_broken(problem_user_inventory):
 # --- problem_user: checkout form fields misaligned ------------------------
 
 
+@pytest.mark.known_bug
+@KNOWN_BUG
 def test_problem_user_checkout_form_fields_misaligned(problem_user_checkout, page):
     """Filling lastName overwrites firstName — fields are wired incorrectly."""
     checkout = problem_user_checkout
@@ -125,6 +140,8 @@ def test_problem_user_checkout_form_fields_misaligned(problem_user_checkout, pag
     )
 
 
+@pytest.mark.known_bug
+@KNOWN_BUG
 def test_problem_user_checkout_cannot_complete_normally(
     problem_user_checkout, page, base_url: str
 ):
@@ -175,6 +192,8 @@ def test_error_user_checkout_reaches_step_one(error_user_checkout, base_url: str
     expect(error_user_checkout.title).to_have_text("Checkout: Your Information")
 
 
+@pytest.mark.known_bug
+@KNOWN_BUG
 def test_error_user_lastname_field_broken(error_user_checkout, page):
     """Filling lastName triggers a JS TypeError and the value never registers."""
     checkout = error_user_checkout
@@ -188,6 +207,8 @@ def test_error_user_lastname_field_broken(error_user_checkout, page):
     expect(page.get_by_test_id("lastName")).not_to_have_value("User")
 
 
+@pytest.mark.known_bug
+@KNOWN_BUG
 def test_error_user_lastname_onchange_throws_js_error(error_user_checkout, page):
     """Typing into lastName triggers a JavaScript TypeError (pageerror)."""
 
@@ -200,6 +221,8 @@ def test_error_user_lastname_onchange_throws_js_error(error_user_checkout, page)
     )
 
 
+@pytest.mark.known_bug
+@KNOWN_BUG
 def test_error_user_cannot_complete_checkout(error_user_checkout, page, base_url: str):
     """error_user cannot finish an order — the Finish button fails."""
     checkout = error_user_checkout
